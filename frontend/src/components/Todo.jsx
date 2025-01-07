@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import Swal from "sweetalert2";
 
 const Todo = () => {
   const [task, setTask] = useState([]);
@@ -7,20 +8,29 @@ const Todo = () => {
   const [editTaskIndex, setEditTaskIndex] = useState(null);
   const [editTaskTitle, setEditTaskTitle] = useState("");
   const [editTaskDescription, setEditTaskDescription] = useState("");
+  const [editTaskCompleted, setEditTaskCompleted] = useState(false);
 
   const addTask = () => {
     if (!taskTitle || !taskDescription) {
-      alert("Task Title or Task Description cannot be empty");
-      return;
-    } else {
-      setTask([...task, { title: taskTitle, description: taskDescription }]);
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Task Title or Task Description cannot be empty",
+      })
+    }
+    else {
+      setTask([...task, { title: taskTitle, description: taskDescription, isCompleted: false }]);
       setTaskTitle("");
       setTaskDescription("");
 
-      const modal = new bootstrap.Modal(
-        document.getElementById("exampleModal")
-      );
-      modal.hide();
+      Swal.fire({
+        icon: "success",
+        title: "Success",
+        text: "Task added successfully",
+        timer: 1500,
+        showConfirmButton: false,
+      })
+
     }
   };
 
@@ -34,26 +44,63 @@ const Todo = () => {
     updatedTask[editTaskIndex] = {
       title: editTaskTitle,
       description: editTaskDescription,
+      isCompleted: editTaskCompleted,
     };
 
     setTask(updatedTask);
     setEditTaskIndex(null);
     setEditTaskTitle("");
     setEditTaskDescription("");
+    setEditTaskCompleted(false);
 
-    const modal = new bootstrap.Modal(document.getElementById("editTaskModal"));
-    modal.hide();
+    Swal.fire({
+      icon: "success",
+      title: "Success",
+      text: "Task updated successfully",
+      timer: 1500,
+      showConfirmButton: false,
+    })
+
   };
 
   const openUpdatedModal = (index) => {
     setEditTaskIndex(index);
     setEditTaskTitle(task[index].title);
     setEditTaskDescription(task[index].description);
+    setEditTaskCompleted(task[index].isCompleted);
   };
 
   const deleteTask = (index) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You want to delete this task?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Yes",
+      cancelButtonText: "No",
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+    }).then((result) => {
+      if (result.isConfirmed) {
+        const updatedTask = [...task];
+        updatedTask.splice(index, 1);
+        setTask(updatedTask);
+
+        Swal.fire({
+          icon: "success",
+          title: "Success",
+          text: "Task deleted successfully",
+          timer: 1500,
+          showConfirmButton: false,
+        })
+      }
+    });
+
+  };
+
+  const toggleCompletion = (index) => {
     const updatedTask = [...task];
-    updatedTask.splice(index, 1);
+    updatedTask[index].isCompleted = !updatedTask[index].isCompleted;
     setTask(updatedTask);
   };
 
@@ -184,6 +231,18 @@ const Todo = () => {
                       onChange={(e) => setEditTaskDescription(e.target.value)}
                     ></textarea>
                   </div>
+                  {/* <div className="form-check">
+                    <input
+                      type="checkbox"
+                      className="form-check-input"
+                      id="edit-task-completed"
+                      checked={editTaskCompleted}
+                      onChange={(e) => setEditTaskCompleted(e.target.checked)}
+                    />
+                    <label className="form-check-label" for="edit-task-completed">
+                      Task Completed
+                    </label>
+                  </div> */}
                 </form>
               </div>
               <div className="modal-footer">
@@ -213,6 +272,18 @@ const Todo = () => {
               className="list-group-item d-flex justify-content-between align-items-center"
               key={index}
             >
+              <div>
+                <input
+                  className="form-check-input"
+                  type="checkbox"
+                  checked={t.completed}
+                  onChange={() => {
+                    const updatedTask = [...task];
+                    updatedTask[index].completed = !t.completed;
+                    setTask(updatedTask);
+                  }}
+                />
+              </div>
               <h5>{t.title}</h5>
               <p>{t.description}</p>
               <button

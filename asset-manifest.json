@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/SManeesha99/ToDo_Application.git/static/css/main.fb961db8.css",
+    "main.js": "/SManeesha99/ToDo_Application.git/static/js/main.c84184ec.js",
+    "index.html": "/SManeesha99/ToDo_Application.git/index.html",
+    "main.fb961db8.css.map": "/SManeesha99/ToDo_Application.git/static/css/main.fb961db8.css.map",
+    "main.c84184ec.js.map": "/SManeesha99/ToDo_Application.git/static/js/main.c84184ec.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.fb961db8.css",
+    "static/js/main.c84184ec.js"
+  ]
+}

@@ -2,56 +2,62 @@ import React, { useState } from "react";
 import Swal from "sweetalert2";
 
 const Todo = () => {
-  const [task, setTask] = useState([]);
+  const [tasks, setTasks] = useState([]);
   const [taskTitle, setTaskTitle] = useState("");
   const [taskDescription, setTaskDescription] = useState("");
   const [editTaskIndex, setEditTaskIndex] = useState(null);
-  const [editTaskTitle, setEditTaskTitle] = useState("");
-  const [editTaskDescription, setEditTaskDescription] = useState("");
-  const [editTaskCompleted, setEditTaskCompleted] = useState(false);
 
+  // Add a new task
   const addTask = () => {
     if (!taskTitle || !taskDescription) {
       Swal.fire({
         icon: "error",
         title: "Oops...",
         text: "Task Title or Task Description cannot be empty",
-      })
-    }
-    else {
-      setTask([...task, { title: taskTitle, description: taskDescription, isCompleted: false }]);
-      setTaskTitle("");
-      setTaskDescription("");
-
-      Swal.fire({
-        icon: "success",
-        title: "Success",
-        text: "Task added successfully",
-        timer: 1500,
-        showConfirmButton: false,
-      })
-
-    }
-  };
-
-  const editTask = () => {
-    if (!editTaskTitle || !editTaskDescription) {
-      alert("Task Title or Task Description cannot be empty");
+        background: "#2d2d2d",
+        color: "#fff",
+      });
       return;
     }
 
-    const updatedTask = [...task];
-    updatedTask[editTaskIndex] = {
-      title: editTaskTitle,
-      description: editTaskDescription,
-      isCompleted: editTaskCompleted,
+    setTasks([...tasks, { title: taskTitle, description: taskDescription, completed: false }]);
+    setTaskTitle("");
+    setTaskDescription("");
+    Swal.fire({
+      icon: "success",
+      title: "Success",
+      text: "Task added successfully",
+      timer: 1500,
+      showConfirmButton: false,
+      background: "#2d2d2d",
+      color: "#fff",
+    });
+  };
+
+  // Edit a task
+  const editTask = () => {
+    if (!taskTitle || !taskDescription) {
+      Swal.fire({
+        icon: "error",
+        title: "Oops...",
+        text: "Task Title or Task Description cannot be empty",
+        background: "#2d2d2d",
+        color: "#fff",
+      });
+      return;
+    }
+
+    const updatedTasks = [...tasks];
+    updatedTasks[editTaskIndex] = { 
+      title: taskTitle, 
+      description: taskDescription, 
+      completed: tasks[editTaskIndex].completed 
     };
 
-    setTask(updatedTask);
+    setTasks(updatedTasks);
     setEditTaskIndex(null);
-    setEditTaskTitle("");
-    setEditTaskDescription("");
-    setEditTaskCompleted(false);
+    setTaskTitle("");
+    setTaskDescription("");
 
     Swal.fire({
       icon: "success",
@@ -59,17 +65,19 @@ const Todo = () => {
       text: "Task updated successfully",
       timer: 1500,
       showConfirmButton: false,
-    })
-
+      background: "#2d2d2d",
+      color: "#fff",
+    });
   };
 
-  const openUpdatedModal = (index) => {
+  // Open modal for editing a task
+  const openEditModal = (index) => {
     setEditTaskIndex(index);
-    setEditTaskTitle(task[index].title);
-    setEditTaskDescription(task[index].description);
-    setEditTaskCompleted(task[index].isCompleted);
+    setTaskTitle(tasks[index].title);
+    setTaskDescription(tasks[index].description);
   };
 
+  // Delete a task
   const deleteTask = (index) => {
     Swal.fire({
       title: "Are you sure?",
@@ -78,233 +86,156 @@ const Todo = () => {
       showCancelButton: true,
       confirmButtonText: "Yes",
       cancelButtonText: "No",
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
+      confirmButtonColor: "#198754",
+      cancelButtonColor: "#dc3545",
+      background: "#2d2d2d",
+      color: "#fff",
     }).then((result) => {
       if (result.isConfirmed) {
-        const updatedTask = [...task];
-        updatedTask.splice(index, 1);
-        setTask(updatedTask);
-
+        setTasks(tasks.filter((_, i) => i !== index));
         Swal.fire({
           icon: "success",
           title: "Success",
           text: "Task deleted successfully",
           timer: 1500,
           showConfirmButton: false,
-        })
+          background: "#2d2d2d",
+          color: "#fff",
+        });
       }
     });
-
   };
 
+  // Toggle completion status
   const toggleCompletion = (index) => {
-    const updatedTask = [...task];
-    updatedTask[index].isCompleted = !updatedTask[index].isCompleted;
-    setTask(updatedTask);
+    const updatedTasks = [...tasks];
+    updatedTasks[index].completed = !updatedTasks[index].completed;
+    setTasks(updatedTasks);
   };
 
   return (
-    <>
-      <div className="container ">
-        <h1 className="text-center mt-3">Todo Application</h1>
-        <button
-          type="button"
-          className="btn btn-primary mt-3"
-          data-bs-toggle="modal"
-          data-bs-target="#exampleModal"
-        >
-          Add Task
-        </button>
+    <div className="min-vh-100 bg-dark text-white p-4">
+      <div className="container" style={{ maxWidth: "800px" }}>
+        <h1 className="text-center display-4 mb-5">My Todos</h1>
 
-        {/* add task modal */}
-        <div
-          className="modal fade"
-          id="exampleModal"
-          tabindex="-1"
-          aria-labelledby="exampleModalLabel"
-          aria-hidden="true"
-        >
-          <div className="modal-dialog">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h1 className="modal-title fs-5" id="exampleModalLabel">
-                  Add Task
-                </h1>
-                <button
-                  type="button"
-                  className="btn-close"
-                  data-bs-dismiss="modal"
-                  aria-label="Close"
-                ></button>
-              </div>
-              <div className="modal-body">
-                <form>
-                  <div className="mb-3">
-                    <label for="task-tittle" className="col-form-label">
-                      Task Tittle:
-                    </label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="task-tittle"
-                      value={taskTitle}
-                      onChange={(e) => setTaskTitle(e.target.value)}
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label for="task-desc" className="col-form-label">
-                      Description:
-                    </label>
-                    <textarea
-                      className="form-control"
-                      id="task-desc"
-                      value={taskDescription}
-                      onChange={(e) => setTaskDescription(e.target.value)}
-                    ></textarea>
-                  </div>
-                </form>
-              </div>
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  data-bs-dismiss="modal"
-                >
-                  Close
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={addTask}
-                >
-                  Save
-                </button>
-              </div>
-            </div>
-          </div>
+        {/* Add Task Button */}
+        <div className="mb-4 text-center">
+          <button
+            className="btn btn-success"
+            data-bs-toggle="modal"
+            data-bs-target="#taskModal"
+            onClick={() => {
+              setEditTaskIndex(null);
+              setTaskTitle("");
+              setTaskDescription("");
+            }}
+          >
+            Add New Task
+          </button>
         </div>
 
-        {/* edit task modal */}
-        <div
-          className="modal fade"
-          id="editTaskModal"
-          tabindex="-1"
-          aria-labelledby="editModalLabel"
-          aria-hidden="true"
-        >
-          <div className="modal-dialog">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h1 className="modal-title fs-5" id="editModalLabel">
-                  Edit Task
-                </h1>
-                <button
-                  type="button"
-                  className="btn-close"
-                  data-bs-dismiss="modal"
-                  aria-label="Close"
-                ></button>
-              </div>
-              <div className="modal-body">
-                <form>
-                  <div className="mb-3">
-                    <label for="edit-task-tittle" className="col-form-label">
-                      Task Tittle:
-                    </label>
-                    <input
-                      type="text"
-                      className="form-control"
-                      id="edit-task-tittle"
-                      value={editTaskTitle}
-                      onChange={(e) => setEditTaskTitle(e.target.value)}
-                    />
-                  </div>
-                  <div className="mb-3">
-                    <label for="edit-task-desc" className="col-form-label">
-                      Description:
-                    </label>
-                    <textarea
-                      className="form-control"
-                      id="edit-task-desc"
-                      value={editTaskDescription}
-                      onChange={(e) => setEditTaskDescription(e.target.value)}
-                    ></textarea>
-                  </div>
-                  {/* <div className="form-check">
-                    <input
-                      type="checkbox"
-                      className="form-check-input"
-                      id="edit-task-completed"
-                      checked={editTaskCompleted}
-                      onChange={(e) => setEditTaskCompleted(e.target.checked)}
-                    />
-                    <label className="form-check-label" for="edit-task-completed">
-                      Task Completed
-                    </label>
-                  </div> */}
-                </form>
-              </div>
-              <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  data-bs-dismiss="modal"
-                >
-                  Close
-                </button>
-                <button
-                  type="button"
-                  className="btn btn-primary"
-                  onClick={editTask}
-                >
-                  Save
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* task list */}
-        <ul className="list-group mt-4">
-          {task.map((t, index) => (
-            <li
-              className="list-group-item d-flex justify-content-between align-items-center"
-              key={index}
-            >
-              <div>
+        {/* Task List */}
+        <div className="list-group">
+          {tasks.length > 0 ? (
+            tasks.map((task, index) => (
+              <div
+                key={index}
+                className="list-group-item bg-secondary bg-opacity-25 text-white d-flex align-items-center gap-3 rounded-3 mb-2"
+              >
                 <input
-                  className="form-check-input"
                   type="checkbox"
-                  checked={t.completed}
-                  onChange={() => {
-                    const updatedTask = [...task];
-                    updatedTask[index].completed = !t.completed;
-                    setTask(updatedTask);
-                  }}
+                  checked={task.completed}
+                  onChange={() => toggleCompletion(index)}
+                  className="form-check-input"
                 />
+                <div className="flex-grow-1">
+                  <h5 className={`mb-1 ${task.completed ? "text-decoration-line-through text-success" : "text-light"}`}>
+                    {task.title}
+                  </h5>
+                  <p className={`mb-0 small ${task.completed ? "text-secondary" : "text-light"}`}>
+                    {task.description}
+                  </p>
+                </div>
+                <div className="d-flex gap-2">
+                  <button
+                    className="btn btn-warning btn-sm"
+                    onClick={() => openEditModal(index)}
+                    data-bs-toggle="modal"
+                    data-bs-target="#taskModal"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="btn btn-danger btn-sm"
+                    onClick={() => deleteTask(index)}
+                  >
+                    Delete
+                  </button>
+                </div>
               </div>
-              <h5>{t.title}</h5>
-              <p>{t.description}</p>
-              <button
-                className="btn btn-warning btn-sm me-2"
-                data-bs-toggle="modal"
-                data-bs-target="#editTaskModal"
-                onClick={() => openUpdatedModal(index)}
-              >
-                Edit
-              </button>
-              <button
-                className="btn btn-danger btn-sm me-2"
-                onClick={() => deleteTask(index)}
-              >
-                Delete
-              </button>
-            </li>
-          ))}
-        </ul>
+            ))
+          ) : (
+            <p className="text-center text-secondary">No tasks found.</p>
+          )}
+        </div>
+
+        {/* Task Modal */}
+        <div
+          className="modal fade"
+          id="taskModal"
+          tabIndex="-1"
+          aria-hidden="true"
+        >
+          <div className="modal-dialog modal-dialog-centered">
+            <div className="modal-content bg-dark text-white">
+              <div className="modal-header">
+                <h5 className="modal-title">{editTaskIndex === null ? "Add Task" : "Edit Task"}</h5>
+                <button
+                  type="button"
+                  className="btn-close btn-close-white"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div className="modal-body">
+                <div className="mb-3">
+                  <label className="form-label">Task Title</label>
+                  <input
+                    type="text"
+                    className="form-control bg-secondary text-white border-secondary"
+                    value={taskTitle}
+                    onChange={(e) => setTaskTitle(e.target.value)}
+                  />
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">Description</label>
+                  <textarea
+                    className="form-control bg-secondary text-white border-secondary"
+                    value={taskDescription}
+                    onChange={(e) => setTaskDescription(e.target.value)}
+                  ></textarea>
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button
+                  className="btn btn-secondary"
+                  data-bs-dismiss="modal"
+                >
+                  Cancel
+                </button>
+                <button
+                  className="btn btn-success"
+                  onClick={editTaskIndex === null ? addTask : editTask}
+                  data-bs-dismiss="modal"
+                >
+                  Save Task
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
-    </>
+    </div>
   );
 };
 
